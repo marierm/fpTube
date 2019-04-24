@@ -1,0 +1,9 @@
+(
+name: "fpTube",
+summary: "All the code for running TubeManager, a utility to manage a bunch of light tubes.",
+version: "0.1",
+schelp: "fpTube",
+dependencies: [],
+license: "GPL",
+copyright: "Martin Marier, Compagnia Finzi Pasca, 2019"
+)
