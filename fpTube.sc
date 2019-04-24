@@ -235,7 +235,8 @@ TubeManagerGui : ObjectGui {
 
 	gui {arg layout,bounds ... args;
 		var window, image;
-		image = Image.open("/home/marierm/.local/share/SuperCollider/Extensions/fpTube/compagnia-finzi-pasca-227x90.png");
+		image = Image.open("compagnia-finzi-pasca-227x90.png");
+		// image = Image.open("/home/marierm/.local/share/SuperCollider/Extensions/fpTube/compagnia-finzi-pasca-227x90.png");
 		window = Window("Tube Manager", Rect.aboutPoint(Window.screenBounds.center, 300, 300)).layout_(
 			VLayout(
 				StaticText(nil, 300@50),
