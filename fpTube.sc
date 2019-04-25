@@ -194,13 +194,17 @@ TubeManager {
 
 	addTube { arg addr, id, dmx, universe, radio, seen=true;
 		var ipLastByte = addr.ip.split($.)[3].asInteger;
-		// does nothing if there already is a tube there.
 		tubes[ipLastByte].isNil.if({ 
 			tubes.put(
 				ipLastByte,
 				FPTube(addr, id, dmx, universe, radio, seen)
 			);
 			this.changed(\tubeAdded, tubes[ipLastByte]);
+		}, { // If the tube already exists, check if anything changed.
+			(tubes[ipLastByte].id != id).if({ tubes[ipLastByte].id_(id) });
+			(tubes[ipLastByte].dmx != dmx).if({ tubes[ipLastByte].dmx_(dmx) });
+			(tubes[ipLastByte].universe != universe).if({ tubes[ipLastByte].universe_(universe) });
+			(tubes[ipLastByte].radio != radio).if({ tubes[ipLastByte].radio_(radio) });
 		});
 	}
 
