@@ -57,7 +57,8 @@ FPTube {
 		// (radioID.class != Char).if({
 		// 	("Radio should be a capital character.  It is " ++ radioID).warn;
 		// });
-		radio = radioID;
+		
+		radio = radioID.asString.replace("\n", "");
 		netAddr.sendMsg("/tube/setradio", radio);
 		this.changed(\radio);
 	}
@@ -149,7 +150,7 @@ FPTube {
 			seen.if({
 				this.changed(\tubeIsBack);
 			},{
-				this.changed(\tubeRemoved);
+				this.changed(\tubeGone);
 			});
 		});
 	}
@@ -242,14 +243,20 @@ TubeManagerGui : ObjectGui {
 		
 		// image = Image.open(Document.current.dir +/+ "compagnia-finzi-pasca-227x90.png");
 		// image = Image.open("/home/marierm/.local/share/SuperCollider/Extensions/fpTube/compagnia-finzi-pasca-227x90.png");
-		window = Window("Tube Manager", Rect.aboutPoint(Window.screenBounds.center, 300, 300)).layout_(
+		window = Window("Tube Manager", Rect.aboutPoint(Window.screenBounds.center, 400, 300)).layout_(
 			VLayout(
-				StaticText(nil, 300@50),
+				StaticText(nil, 400@50),
 				tree = TreeView().columns_(
 					["on", "IP", "ID", "DMX address", "Universe", "Radio", "Bang"]
 				).resize_(5);
 			)
 		);
+		tree.setColumnWidth(0, 50);
+		tree.setColumnWidth(1, 160);
+		tree.setColumnWidth(2, 80);
+		tree.setColumnWidth(3, 80);
+		tree.setColumnWidth(4, 80);
+		tree.setColumnWidth(5, 80);
 		model.tubes.select(_.notNil).do{|i,j|
 			FPTubeView(tree,i,j);
 		};
@@ -332,7 +339,7 @@ FPTubeView {
 			// \name, {
 			// 	name.string_(parameter.name);
 			// },
-			\tubeRemoved, {
+			\tubeGone, {
 				{
 					treeItem.textColors_(Color.grey(0.6)!7);
 					treeItem.setString(0, "");
@@ -420,7 +427,7 @@ FPTubeEditor {
 FPTubeEditorGui : ObjectGui {
 	gui {
 		var window, idBox, dmxBox, uniBox, radioBox;
-		window = Window("Tube " ++ model.fpTube.netAddr.ip, Rect.aboutPoint(Window.screenBounds.center, 300, 40));
+		window = Window("Tube " ++ model.fpTube.netAddr.ip, Rect.aboutPoint(Window.screenBounds.center, 400, 40));
 		window.layout = HLayout(
 			VLayout(
 				StaticText().string_("Id").align_(\center),
