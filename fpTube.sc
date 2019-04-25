@@ -243,7 +243,7 @@ TubeManagerGui : ObjectGui {
 		
 		// image = Image.open(Document.current.dir +/+ "compagnia-finzi-pasca-227x90.png");
 		// image = Image.open("/home/marierm/.local/share/SuperCollider/Extensions/fpTube/compagnia-finzi-pasca-227x90.png");
-		window = Window("Tube Manager", Rect.aboutPoint(Window.screenBounds.center, 400, 300)).layout_(
+		window = Window("Tube Manager", Rect.aboutPoint(Window.screenBounds.center, 400, 400)).layout_(
 			VLayout(
 				StaticText(nil, 400@50),
 				tree = TreeView().columns_(
@@ -273,8 +273,10 @@ TubeManagerGui : ObjectGui {
 			ipLastByte = v.currentItem.strings[1].split($.)[3].asInteger;
 			unicode.switch(
 				32, { // space bar
+					var nextItem;
 					model.tubes[ipLastByte].bang(1000);
-					v.currentItem_(v.itemAt(v.currentItem.index + 1));
+					nextItem = v.itemAt(v.currentItem.index + 1);
+					v.currentItem_(nextItem ? v.itemAt(0));
 				}, 
 				8, { model.tubes[ipLastByte].remove; }, // delete
 				127, { model.tubes[ipLastByte].remove; } // backspace
