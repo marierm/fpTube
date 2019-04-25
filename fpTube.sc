@@ -261,17 +261,6 @@ TubeManagerGui : ObjectGui {
 			FPTubeView(tree,i,j);
 		};
 
-		// buttons = tree.addItem(["",""]).setView(
-		// 	0,
-		// 	Button().states_([["Add"]]).action_({
-		// 		model.add()
-		// 	})
-		// ).setView(
-		// 	1,
-		// 	Button().states_([["Randomize"]]).action_({
-		// 		model.randomizeParameters;
-		// 	})
-		// );
 		tree.mouseDownAction_({ |v,x,y,mod,num,count|
 			(count==2).if({
 				var ipLastByte;
@@ -279,6 +268,19 @@ TubeManagerGui : ObjectGui {
 				model.tubes[ipLastByte].openEditor;
 			});
 		});
+		tree.keyDownAction_({ |v,char,mod,unicode,keycode,key|
+			var ipLastByte;
+			ipLastByte = v.currentItem.strings[1].split($.)[3].asInteger;
+			unicode.switch(
+				32, { // space bar
+					model.tubes[ipLastByte].bang(1000);
+					v.currentItem_(v.itemAt(v.currentItem.index + 1));
+				}, 
+				8, { model.tubes[ipLastByte].remove; }, // delete
+				127, { model.tubes[ipLastByte].remove; } // backspace
+			);
+		});
+
 		// tree.setProperty(\windowTitle, "Tube Manager");		
 		window.onClose_({
 			model.removeDependant(this);
