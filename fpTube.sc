@@ -209,6 +209,15 @@ TubeManager {
 		});
 	}
 
+	removeTube { arg ipLastByte, treeItem;
+		tubes[ipLastByte].seen.if({
+			"This tube is still on the network and won't be removed.".postln;
+		}, {
+			this.changed(\tubeRemoved, treeItem);
+			tubes[ipLastByte] = nil;
+		});
+	}
+
 	trace { arg bool=true;
 		bool.if({
 			OSCdef(\fpTubeTraceOSC, { |... all|
@@ -234,6 +243,9 @@ TubeManagerGui : ObjectGui {
 				{
 					FPTubeView(tree,args[0]);
 				}.defer;
+			},
+			\tubeRemoved, {
+				tree.removeItem(args[0]); // args[0] is the treeItem.
 			}
 		);
 	}
@@ -278,8 +290,8 @@ TubeManagerGui : ObjectGui {
 					nextItem = v.itemAt(v.currentItem.index + 1);
 					v.currentItem_(nextItem ? v.itemAt(0));
 				}, 
-				8, { model.tubes[ipLastByte].remove; }, // delete
-				127, { model.tubes[ipLastByte].remove; } // backspace
+				8, { model.removeTube(ipLastByte, v.currentItem); }, // delete
+				127, { model.removeTube(ipLastByte, v.currentItem); } // backspace
 			);
 		});
 
