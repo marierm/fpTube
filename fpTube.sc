@@ -333,8 +333,6 @@ FPTubeView {
 			// 	name.string_(parameter.name);
 			// },
 			\tubeRemoved, {
-				tube.postln;
-				\tubeRemoved.postln;
 				{
 					treeItem.textColors_(Color.grey(0.6)!7);
 					treeItem.setString(0, "");
