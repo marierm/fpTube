@@ -164,7 +164,7 @@ FPTube {
 
 
 TubeManager {
-	var <tubes, <oscFunc, <checkTask;
+	var <tubes, <oscFunc;
 	var tubeOutPort=55999, tubeInPort=55801;
 	* new {
 		^super.new.init();
@@ -202,10 +202,10 @@ TubeManager {
 			);
 			this.changed(\tubeAdded, tubes[ipLastByte]);
 		}, { // If the tube already exists, check if anything changed.
-			(tubes[ipLastByte].id != id).if({ tubes[ipLastByte].id_(id) });
+			(tubes[ipLastByte].id != id).if({ tubes[ipLastByte].id_(id); });
 			(tubes[ipLastByte].dmx != dmx).if({ tubes[ipLastByte].dmx_(dmx) });
 			(tubes[ipLastByte].universe != universe).if({ tubes[ipLastByte].universe_(universe) });
-			(tubes[ipLastByte].radio != radio).if({ tubes[ipLastByte].radio_(radio) });
+			(tubes[ipLastByte].radio.asString != radio.asString).if({ tubes[ipLastByte].radio_(radio) });
 		});
 	}
 
@@ -226,6 +226,11 @@ TubeManager {
 		}, {
 			OSCdef(\fpTubeTraceOSC, {} ); // change message to /tube/conf (or something better)
 		});
+	}
+
+	free {
+		Tdef(\checkTubes).stop;
+		oscFunc.free;
 	}
 
 	guiClass { ^TubeManagerGui }
@@ -276,18 +281,21 @@ TubeManagerGui : ObjectGui {
 		tree.mouseDownAction_({ |v,x,y,mod,num,count|
 			(count==2).if({
 				var ipLastByte;
-				ipLastByte = v.currentItem.strings[1].split($.)[3].asInteger;
+				try { ipLastByte = v.currentItem.strings[1].split($.)[3].asInteger; };
 				model.tubes[ipLastByte].openEditor;
 			});
 		});
 		tree.keyDownAction_({ |v,char,mod,unicode,keycode,key|
 			var ipLastByte;
-			ipLastByte = v.currentItem.strings[1].split($.)[3].asInteger;
+			try { ipLastByte = v.currentItem.strings[1].split($.)[3].asInteger; };
 			unicode.switch(
-				32, { // space bar
+				32, { // space bar bangs and select next tube.
 					var nextItem;
+					var increment = 1;
+					// shift key goes backward. (up)
+					mod.isShift.if({ increment = -1; });
 					model.tubes[ipLastByte].bang(1000);
-					nextItem = v.itemAt(v.currentItem.index + 1);
+					nextItem = v.itemAt(v.currentItem.index + increment);
 					v.currentItem_(nextItem ? v.itemAt(0));
 				}, 
 				8, { model.removeTube(ipLastByte, v.currentItem); }, // delete
@@ -298,7 +306,7 @@ TubeManagerGui : ObjectGui {
 		// tree.setProperty(\windowTitle, "Tube Manager");		
 		window.onClose_({
 			model.removeDependant(this);
-			Tdef(\checkTubes).stop;
+			model.free;
 		});
 		tree.canSort_(true);
 		window.front;
