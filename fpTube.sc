@@ -1,5 +1,6 @@
 FPTube {
 	var <seen, <netAddr, <id, <dmx, <universe, <radio, <>lastSeen;
+	var <>protected=false;
 
 	* new { arg netAddr, id=1, dmx=1, universe=1, radio="", seen=false;
 		^super.new.init(netAddr, id, dmx, universe, radio, seen);
@@ -12,6 +13,28 @@ FPTube {
 		this.universe_(uni);
 		this.radio_(radioID);
 		this.seen_(seenOnNetwork);
+	}
+
+	//update variables frome configurations received via OSC.
+	oscUpdate { arg identity, dmxAddress, uni, radioID;
+		protected.not.if({
+			(identity != id).if({
+				id = identity;
+				this.changed(\id);
+			});
+			(dmxAddress != dmx).if({
+				dmx = dmxAddress;
+				this.changed(\dmx);
+			});
+			(universe != uni).if({
+				universe = uni;
+				this.changed(\universe);
+			});
+			(radioID.asString != radio.asString).if({
+				radio = radioID.asString.replace("\n", "");
+				this.changed(\radio);
+			});
+		});
 	}
 
 	netAddr_ { arg netAddress;
@@ -156,6 +179,7 @@ FPTube {
 	}
 
 	openEditor {
+		protected = true;
 		FPTubeEditor(this).gui;
 	}
 	
@@ -201,11 +225,11 @@ TubeManager {
 				FPTube(addr, id, dmx, universe, radio, seen)
 			);
 			this.changed(\tubeAdded, tubes[ipLastByte]);
-		}, { // If the tube already exists, check if anything changed.
-			(tubes[ipLastByte].id != id).if({ tubes[ipLastByte].id_(id); });
-			(tubes[ipLastByte].dmx != dmx).if({ tubes[ipLastByte].dmx_(dmx) });
-			(tubes[ipLastByte].universe != universe).if({ tubes[ipLastByte].universe_(universe) });
-			(tubes[ipLastByte].radio.asString != radio.asString).if({ tubes[ipLastByte].radio_(radio) });
+		}, {
+			// If the tube already exists, check if anything changed
+			// and keep its GUI update...
+			// Unless an FPTubeEditor is open!!!!!
+			tubes[ipLastByte].oscUpdate(id, dmx, universe, radio);
 		});
 	}
 
@@ -488,6 +512,9 @@ FPTubeEditorGui : ObjectGui {
 				}).align_(\center)
 			),
 		);
+		window.onClose_({
+			model.fpTube.protected_(false);
+		});
 		window.front;
 	}
 }
