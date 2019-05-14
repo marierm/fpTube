@@ -261,6 +261,27 @@ TubeManager {
 	
 }
 
+FPTubeFileConverter {
+	classvar pythonScript, videosBasePath;
+
+	* new {
+		^super.new();
+	}
+
+	
+	*initClass {
+		pythonScript = this.class.filenameSymbol.asString.dirname +/+ "moviesToPng.py";
+		videosBasePath = "/home/marierm/docs/finziPasca/video/forestaVideos"
+	}
+
+	convert { arg file;
+		var command;
+		command = "cd" + videosBasePath + ";" + "python3" + pythonScript + "01-videos_raw" +/+ file;
+		command.unixCmd;
+	}
+}
+
+
 
 TubeManagerGui : ObjectGui { 
 	var <tree, buttons;
@@ -518,3 +539,5 @@ FPTubeEditorGui : ObjectGui {
 		window.front;
 	}
 }
+
+
